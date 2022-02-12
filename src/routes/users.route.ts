@@ -1,23 +1,24 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import userRepository from "../repositories/user.repository";
 
 const usersRoute = Router();
 
-usersRoute.get('/users', (req: Request, res: Response, next: NextFunction) => {
-    const users = [{ firstName: 'Jessica', lastName: 'Cunha' }];
+usersRoute.get('/users', async (req: Request, res: Response, next: NextFunction) => {
+    const users = await userRepository.findAllUser();
     res.status(StatusCodes.OK).send(users);
 });
 
-usersRoute.get('/users/:uuid', (req: Request <{ uuid: string }>, res: Response, next: NextFunction) => {
+usersRoute.get('/users/:uuid', async (req: Request <{ uuid: string }>, res: Response, next: NextFunction) => {
     const uuid = req.params.uuid;
-    // bancoDeDados.getUserByUUid(uuid);
-    res.status(StatusCodes.OK).send(`Você digitou: ${uuid}`);
+    const user = await userRepository.findById(uuid);
+    res.status(StatusCodes.OK).send(user);
 });
 
-usersRoute.post('/users', (req: Request, res: Response, next: NextFunction) => {
+usersRoute.post('/users', async (req: Request, res: Response, next: NextFunction) => {
     const newUser = req.body;
-
-    res.status(StatusCodes.CREATED).send(newUser);
+    const uuid = await userRepository.create(newUser);
+    res.status(StatusCodes.CREATED).send(uuid);
 });
 
 usersRoute.put('/users/:uuid', (req: Request <{ uuid: string }>, res: Response, next: NextFunction) => {
